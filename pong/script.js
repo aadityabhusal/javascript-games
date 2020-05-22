@@ -1,20 +1,34 @@
-
 class Player{
-    constructor(num, ctx){
+    constructor(ctx, computer = false){
         this.ctx = ctx;
-        this.y = ctx.canvas.height /2 - this.h/2;
-        if(num == 1){
-            this.x = 0;
+        this.computer = computer;
+        this.y = this.ctx.canvas.height /2 - this.height/2;
+        if(this.computer){
+            this.x = this.ctx.canvas.width - this.width;
         }else{
-            this.x = ctx.canvas.width - this.w;
+            this.x = 0;
         }
     }
-    h = 120;
-    w = 30;
+
+    height = 120;
+    width = 20;
     score = 0;
+
     render(){
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(this.x, this.y, this.w, this.h);
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    autoPlay(ball){
+      if(this.computer){
+        let level = 0.1;
+        if(this.y <= 0){
+            this.y = 1;
+        }else if(this.y >= this.ctx.canvas.height - this.height){
+            this.y = this.ctx.canvas.height - this.height;
+        }
+        this.y += (ball.y - (this.y + this.height/2)) * level;
+      }  
     }
 }
 
@@ -25,7 +39,7 @@ class Ball{
         this.x = this.ctx.canvas.width/2 - this.radius/2;
     }
 
-    radius = 20;
+    radius = 15;
     speed = 5;
     velocityX = 5;
     velocityY = 5;
@@ -38,32 +52,31 @@ class Ball{
         this.ctx.fill();
     }
 
-    update(user,comp){
+    update(user,computer){
         this.x += this.velocityX;
         this.y += this.velocityY;
 
-        if(this.y+this.radius > this.ctx.canvas.height || this.y-this.radius < 0){
+        if(this.y+this.radius > this.ctx.canvas.height || this.y - this.radius < 0){
             this.velocityY = - this.velocityY;
         }
 
-        let player = (this.x < this.ctx.canvas.width/2) ? user : comp;
+        let player = (this.x < this.ctx.canvas.width/2) ? user : computer;
 
         if(collision(this, player)){
-            let collidePoint = (this.y - (player.y + player.h/2));
-            collidePoint = collidePoint / (player.h/2);
+            let collidePoint = (this.y - (player.y + player.height/2));
+            collidePoint = collidePoint / (player.height/2);
             let angleRad = (Math.PI/4)*collidePoint;
+            let direction = (this.x < this.ctx.canvas.width/2) ? 1 : -1;
 
-            let dirn = (this.x < this.ctx.canvas.width/2) ? 1 : -1;
-
-            this.velocityX = dirn * (this.speed * Math.cos(angleRad));
-            this.velocityY = dirn * (this.speed * Math.sin(angleRad));
-            this.speed += 0.1;
+            this.velocityX = direction * (this.speed * Math.cos(angleRad));
+            this.velocityY = direction * (this.speed * Math.sin(angleRad));
+            this.speed += 0.5;
         }
 
         if(this.x - this.radius < 0){
-            comp.score++;
+            computer.score++;
             this.reset();
-        }else if(this.x+this.radius > this.ctx.canvas.width){
+        }else if(this.x + this.radius > this.ctx.canvas.width){
             user.score++;
             this.reset();
         }
@@ -73,11 +86,10 @@ class Ball{
         this.x = this.ctx.canvas.width/2 - this.radius/2;
         this.y = this.ctx.canvas.height/2 - this.radius/2;
         this.speed = 5;
-        this.velocityX = -this.velocityX;
+        this.velocityX = -5 * Math.sign(this.velocityX);
+        this.velocityY = -5 * Math.sign(this.velocityY);
     }
 }
-
-
 
 function centerLine(ctx){
     ctx.fillStyle = "black";
@@ -98,12 +110,11 @@ function drawText(text, x, y, ctx){
     ctx.fillText(text, x, y);
 }
 
-
 function collision(ball, player) {
     player.top = player.y;
-    player.bottom = player.y + player.h;
+    player.bottom = player.y + player.height;
     player.left = player.x;
-    player.right = player.x + player.w;
+    player.right = player.x + player.width;
     
     ball.top = ball.y - ball.radius;
     ball.bottom = ball.y + ball.radius;
@@ -115,44 +126,36 @@ function collision(ball, player) {
 
 function initGame(){
     let context = document.getElementById("canvas").getContext("2d");
-    let cW = context.canvas.width;
-    let cH = context.canvas.height;
-    
-    
+    let contextWidth = context.canvas.width;
+    let contextHeight = context.canvas.height;
 
-
-    let user = new Player(1, context);
-    let comp = new Player(2, context);
-    comp.y -= 20;
+    let user = new Player(context);
+    let computer = new Player(context, true);
     let ball = new Ball(context);
     
     function play(){
-        context.clearRect(0,0, cW, cH)
+        context.clearRect(0,0, contextWidth, contextHeight)
         centerLine(context);
         user.render();
-        comp.render();
+        computer.render();
+        console.log(computer.height);
+        computer.autoPlay(ball);
         ball.render();
-            
-        ball.update(user, comp);
-    
-        drawText(user.score, cW/4, cH/5, context);
-    
-        drawText(comp.score, 3*cW/4, cH/5, context);
+        ball.update(user, computer);
+        drawText(user.score, contextWidth/4, contextHeight/5, context);
+        drawText(computer.score, 3*contextWidth/4, contextHeight/5, context);
     }
 
     setInterval(play, 1000/50);
-
+    
     document.addEventListener("mousemove", function(event){
         let rect = context.canvas.getBoundingClientRect();
-        if(event.clientY > rect.top+(user.h/2) && event.clientY < rect.top + cH - (user.h/2)){
-            user.y = event.clientY - rect.top - user.h/2;
+        if(event.clientY > rect.top+(user.height/2) && event.clientY < rect.top + contextHeight - (user.height/2)){
+            user.y = event.clientY - rect.top - user.height/2;
         }
-    })
+
+        
+    });
 }
 
-
-
-
-
-
-window.addEventListener('load', event => initGame());
+window.addEventListener('load', initGame);
