@@ -1,13 +1,15 @@
 const blockSize = 16;
-const blocks = 39;
-let random = () => Math.floor(Math.random() * blocks) * blockSize;
+const blocksX = 49;
+const blocksY = 29;
+let randomX = () => Math.floor(Math.random() * blocksX) * blockSize;
+let randomY = () => Math.floor(Math.random() * blocksY) * blockSize;
 
 class Food {
     constructor(context){
         this.color = "red";
         this.ctx = context;
-        this.x = random();
-        this.y = random();
+        this.x = randomX();
+        this.y = randomY();
     }
     render(){
         this.ctx.fillStyle = this.color;
@@ -19,8 +21,8 @@ class Snake {
     constructor(context){
         this.color = "green";
         this.ctx = context;
-        this.x = random();
-        this.y = random();
+        this.x = randomX();
+        this.y = randomY();
         this.score = 0;
         this.direction = Math.floor(Math.random() * 4) + 1;
         this.body = [];
@@ -38,8 +40,8 @@ class Snake {
         if(this.snakeX == food.x && this.snakeY == food.y){
             this.score++;
             console.log(this.score);
-            food.x = random();
-            food.y = random();
+            food.x = randomX();
+            food.y = randomY();
         }else{
             this.body.pop();
         }
@@ -53,7 +55,7 @@ class Snake {
     }
 
     gameOver(){
-        if(this.snakeX < 0 || this.snakeX > blocks * blockSize || this.snakeY < 0 || this.snakeY > blocks * blockSize){
+        if(this.snakeX < 0 || this.snakeX > blocksX * blockSize || this.snakeY < 0 || this.snakeY > blocksY * blockSize){
             return true;
         }
         for (let i = 1; i < this.body.length; i++) {
