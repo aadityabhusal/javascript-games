@@ -128,7 +128,7 @@ function initGame(){
     let context = document.getElementById("canvas").getContext("2d");
     let contextWidth = context.canvas.width;
     let contextHeight = context.canvas.height;
-
+    
     let user = new Player(context);
     let computer = new Player(context, true);
     let ball = new Ball(context);
@@ -153,8 +153,6 @@ function initGame(){
         if(event.clientY > rect.top+(user.height/2) && event.clientY < rect.top + contextHeight - (user.height/2)){
             user.y = event.clientY - rect.top - user.height/2;
         }
-
-        
     });
 }
 
