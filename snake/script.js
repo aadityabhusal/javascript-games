@@ -4,7 +4,6 @@ const blocksY = 29;
 let randomX = () => Math.floor(Math.random() * blocksX) * blockSize;
 let randomY = () => Math.floor(Math.random() * blocksY) * blockSize;
 
-
 class Food {
     constructor(context){
         this.color = "#c0392b";
@@ -12,6 +11,7 @@ class Food {
         this.x = randomX();
         this.y = randomY();
     }
+    
     render(){
         this.ctx.strokeStyle = "#fff";
         this.ctx.lineWidth = 2;
@@ -39,12 +39,12 @@ class Snake {
     render(food){ 
         this.body.forEach((item,index) => {
             this.ctx.lineWidth = 2;
-            if(index == 0){
+
+            if(index == 0)
                 this.ctx.strokeStyle = "#fff";
-            }else{
+            else
                 this.ctx.strokeStyle = "#bdc3c7";
 
-            }
             this.ctx.strokeRect(item.x, item.y, blockSize, blockSize)
             this.ctx.fillStyle = this.color;
             this.ctx.fillRect(item.x, item.y, blockSize, blockSize);
@@ -85,48 +85,86 @@ class Snake {
     }
 }
 
+function pauseScreen(ctx, gameOver, gamePause, pauseCount){
+    let primaryText;
+
+    if(pauseCount < 1){
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.font = "28px monospace";
+        ctx.fillStyle = "#fff";
+
+        if(pauseCount == -1) 
+            primaryText = "Play Game";
+        else if(gameOver) 
+            primaryText = "Game Over";
+        else if(gamePause) 
+            primaryText = "Game Paused";
+
+        ctx.fillText(primaryText, ctx.canvas.width/2 - 80, ctx.canvas.height/2);
+        ctx.font = "20px monospace";
+        ctx.fillText("Press space to continue", ctx.canvas.width/2 - 130, ctx.canvas.height*(3/4));
+    }
+}
+
 function initGame() {
     let context = document.querySelector("#canvas").getContext("2d");
     let canvasWidth = context.canvas.width;
     let canvasHeight = context.canvas.height;
-
+    let gameOver = false;
+    let gamePause = true;
     let snake = new Snake(context);
     let food = new Food(context);
-    
-    function game() {
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
-        let gradient = context.createLinearGradient(0, 0, 0, canvasHeight)
-        gradient.addColorStop(0, "#16a085")
-        gradient.addColorStop(1, "#1abc9c")
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, canvasWidth, canvasHeight);
-        
-        food.render();
-        snake.render(food);
-        if(snake.gameOver()){
-            clearInterval(play);
-        }
-        
-        context.fillStyle = "#fff";
-        context.font = "15px monospace";
-        context.fillText("Score: " + snake.score, 10, 20);
-    }
+    let pauseCount = -1;
 
-    let play = setInterval(game, 100);
+    pauseScreen(context, gameOver, gamePause, pauseCount);
+
+    function game() {
+        if(!gamePause && !gameOver){
+            context.clearRect(0, 0, canvasWidth, canvasHeight);
+            let gradient = context.createLinearGradient(0, 0, 0, canvasHeight)
+            gradient.addColorStop(0, "#16a085")
+            gradient.addColorStop(1, "#1abc9c")
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, canvasWidth, canvasHeight);
+            
+            food.render();
+            snake.render(food);
+            if(snake.gameOver()){
+                snake = new Snake(context);
+                gameOver = true;
+            }
+            
+            context.fillStyle = "#fff";
+            context.font = "15px monospace";
+            context.fillText("Score: " + snake.score, 10, 20);
+            pauseCount = 0;
+        }else{
+            pauseScreen(context, gameOver, gamePause, pauseCount);
+            pauseCount++;
+        }
+    }
 
     document.addEventListener("keydown", function(event) {
         let key = event.keyCode;
-        if(key == 37 && snake.direction != 3){
+        if(key == 37 && snake.direction != 3 && !gamePause && !gameOver){
             snake.direction = 1;
-        }else if(key == 38 && snake.direction != 4){
+        }else if(key == 38 && snake.direction != 4 && !gamePause && !gameOver){
             snake.direction = 2;
-        }else if(key == 39 && snake.direction != 1){
+        }else if(key == 39 && snake.direction != 1 && !gamePause && !gameOver){
             snake.direction = 3;
-        }else if(key == 40 && snake.direction != 2){
+        }else if(key == 40 && snake.direction != 2 && !gamePause && !gameOver){
             snake.direction = 4;
-        }
-    })
+        }else if(key == 32){ 
+            if(gameOver) 
+                gameOver = gamePause = false;
+            else 
+                gamePause = gamePause ? false : true;
 
+            if(pauseCount == -1) 
+                setInterval(game, 100);
+        }
+    });
 }
 
 window.addEventListener('load', initGame);
