@@ -28,11 +28,11 @@ playMusic.addEventListener('ended', function() {
 }, false);
 
 function initCanvas() {
-    let ctx = document.getElementById("myCanvas").getContext('2d');
+    let ctx = document.getElementById("canvas").getContext('2d');
     let cW = ctx.canvas.width;
     let cH = ctx.canvas.height;
 
-    document.getElementById("myCanvas").focus();
+    document.getElementById("canvas").focus();
     let gameOver = false;
     let shootCheck = 0;
     let spaceHit = false;
@@ -265,7 +265,7 @@ function initCanvas() {
 }
 
 function startPage(){
-    let ctx = document.getElementById("myCanvas").getContext('2d');
+    let ctx = document.getElementById("canvas").getContext('2d');
     let cW = ctx.canvas.width;
     let cH = ctx.canvas.height;
     

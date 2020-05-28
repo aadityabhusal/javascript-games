@@ -3,12 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JavaScript Snake</title>
+    <title>Snake</title>
     <style>
         body{
             margin: 0;
             padding: 0;
             text-align: center;
+            background-color: #ececec;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        a{
+            color: #fff;
+            text-decoration: none;
+        }
+
+        a:hover{
+            color: #3498db;
+            text-decoration: underline;
+        }
+
+        #header{
+            display: flex;
+            align-items: center;
+            padding: 10px 30px;
+            margin-bottom: 30px;
+            background-color: #2c3e50;
+            justify-content: space-between;
+            color: #fff;
+        }
+
+        h1{
+            margin: 0;
+        }
+
+        #canvas-container{
+            background-color: #fff;
+            max-width: 860px;
+            padding: 30px 0;
+            margin: 0 auto;
+            text-align: center;
+            border-radius: 20px;
         }
 
         canvas{
@@ -17,8 +52,19 @@
     </style>
 </head>
 <body>
-    <h1>Snake Game</h1>
-    <canvas id="canvas" width="800" height="480"></canvas>
+    <div id="header">
+        <a href="../">
+            <svg style="width:18px;height:18px" viewBox="0 0 18 18">
+                <path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
+            </svg>
+            <span>Back</span>
+        </a>
+        <h1>Snake</h1>
+        <span></span>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas" width="800" height="480"></canvas>
+    </div>
 </body>
     <script src="script.js"></script>
 </html>
