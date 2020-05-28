@@ -4,14 +4,18 @@ const blocksY = 29;
 let randomX = () => Math.floor(Math.random() * blocksX) * blockSize;
 let randomY = () => Math.floor(Math.random() * blocksY) * blockSize;
 
+
 class Food {
     constructor(context){
-        this.color = "red";
+        this.color = "#c0392b";
         this.ctx = context;
         this.x = randomX();
         this.y = randomY();
     }
     render(){
+        this.ctx.strokeStyle = "#fff";
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(this.x, this.y, blockSize, blockSize)
         this.ctx.fillStyle = this.color;
         this.ctx.fillRect(this.x, this.y, blockSize, blockSize);
     }
@@ -19,7 +23,7 @@ class Food {
 
 class Snake {
     constructor(context){
-        this.color = "green";
+        this.color = "#27ae60";
         this.ctx = context;
         this.x = randomX();
         this.y = randomY();
@@ -27,19 +31,34 @@ class Snake {
         this.direction = Math.floor(Math.random() * 4) + 1;
         this.body = [];
         this.body[0] = {x: this.x, y: this.y};
+        this.body[1] = {x: this.x, y: this.y};
         this.snakeX = this.body[0].x;
         this.snakeY = this.body[0].y;
     }
 
     render(food){ 
-        this.body.forEach(item => {
+        this.body.forEach((item,index) => {
+            this.ctx.lineWidth = 2;
+            if(index == 0){
+                this.ctx.strokeStyle = "#fff";
+            }else{
+                this.ctx.strokeStyle = "#bdc3c7";
+
+            }
+            this.ctx.strokeRect(item.x, item.y, blockSize, blockSize)
             this.ctx.fillStyle = this.color;
             this.ctx.fillRect(item.x, item.y, blockSize, blockSize);
+
+            if(index == 0){
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                this.ctx.arc(item.x + (blockSize/2), item.y + (blockSize/2), (blockSize/4), 0, Math.PI*2, false);
+                this.ctx.stroke();
+            }
         });
 
         if(this.snakeX == food.x && this.snakeY == food.y){
             this.score++;
-            console.log(this.score);
             food.x = randomX();
             food.y = randomY();
         }else{
@@ -76,14 +95,21 @@ function initGame() {
     
     function game() {
         context.clearRect(0, 0, canvasWidth, canvasHeight);
-        context.fillStyle = "#fff";
-        context.font = "15px Arial";
-        context.fillText("Score: " + snake.score, 5, 20);
+        let gradient = context.createLinearGradient(0, 0, 0, canvasHeight)
+        gradient.addColorStop(0, "#16a085")
+        gradient.addColorStop(1, "#1abc9c")
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, canvasWidth, canvasHeight);
+        
         food.render();
         snake.render(food);
         if(snake.gameOver()){
             clearInterval(play);
         }
+        
+        context.fillStyle = "#fff";
+        context.font = "15px monospace";
+        context.fillText("Score: " + snake.score, 10, 20);
     }
 
     let play = setInterval(game, 100);
@@ -102,6 +128,5 @@ function initGame() {
     })
 
 }
-
 
 window.addEventListener('load', initGame);
