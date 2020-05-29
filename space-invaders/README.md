@@ -4,14 +4,11 @@ A different version of the classic Space Invaders game.
 
 ## Demo
 
-The live version of the game can be viewed here: [Demo Link](https://aadityabhusal.github.io/space-invaders/).
+The live version of the game can be viewed here: [Demo Link](https://aadityabhusal.github.io/javascript-games/space-invaders/).
 
 ## Screenshots
 
-![Screenshot](images/screenshot1.jpg)
-
-
-![Screenshot](images/screenshot2.jpg)
+![Screenshot](images/screenshot.jpg)
 
 ## Problems
 
