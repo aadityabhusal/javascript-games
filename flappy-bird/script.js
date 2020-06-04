@@ -1,10 +1,11 @@
 function setBackground(context) {
+    // Painting the sky
     let skyColor = context.createLinearGradient(0, 0, 0, 400);
     skyColor.addColorStop(0, '#3498db');
     skyColor.addColorStop(1, '#1276b9');
     context.fillStyle = skyColor;
     context.fillRect(0,0, 480, 420);
-
+    // Painting the ground
     let groundColor = context.createLinearGradient(0, 420, 0, 480);
     groundColor.addColorStop(0, "#1abc9c")
     groundColor.addColorStop(1, "#16a085")
@@ -12,35 +13,85 @@ function setBackground(context) {
     context.fillRect(0,420, 480, 480);
 }
 
+class Bird {
+    constructor(context){
+        this.context = context;
+        this.x = this.context.canvas.width/3;
+        this.y = this.context.canvas.height/3;
+        this.width = 35;
+        this.height = 25;
+    }
+
+    render(degree){
+        this.context.save();
+        // Rotate the bird
+        let radian = degree * Math.PI / 180;
+        this.context.translate(this.x + this.width / 2, this.y + this.height / 2);
+        this.context.rotate(radian);
+        // Body
+        this.context.fillStyle = "#e1b12c";
+        this.context.fillRect(this.width/-2, this.height/-2, 30, 25);
+        // Beak
+        this.context.fillStyle = "#c0392b";
+        this.context.fillRect((this.width/-2)+this.width-15, (this.height/-2)+14, 16, 8);
+        // Eye
+        this.context.fillStyle = "#ecf0f1";
+        this.context.beginPath();
+        this.context.arc((this.width/-2)+this.width-12, (this.height/-2)+7, 5, 0, Math.PI*2, false);
+        this.context.closePath();
+        this.context.fill();
+        // Wing
+        this.context.fillStyle = "#ecf0f1";
+        this.context.beginPath();
+        this.context.arc((this.width/-2)+3, (this. height/-2)+12, 10, Math.PI*1.7, Math.PI*0.8, false);
+        this.context.closePath();
+        this.context.fill();
+        this.context.restore();
+    }
+
+    reset(){
+        this.x = this.context.canvas.width/3;
+        this.y = this.context.canvas.height/3;
+    }
+}
+
 function Pipe(context) {
     this.color = "#009432";
     this.border = "#44bd32";
-    this.height = 150;
+    this.height = 100;
     this.width = 80;
     this.x = 480;
-    this.top = Math.floor(Math.random() * 220);
+    this.top = Math.floor(Math.random() * 220) + 10;
+    let playHeight = 420;
 
     this.render = function(){
-        // Pipe Border
-        context.lineWidth = 10;
-        context.strokeStyle = this.border;
-        context.strokeRect(this.x, 0, this.width, this.top);
-        context.strokeRect(this.x, this.top+this.height, this.width, 420 - (this.top+this.height) - 5);
-        // Pipe Body
         context.fillStyle = this.color;
         context.fillRect(this.x, 0, this.width, this.top);
-        context.fillRect(this.x, this.top+this.height, this.width, 420 - (this.top+this.height) - 5);
+        context.fillRect(this.x, this.top+this.height, this.width, playHeight - (this.top+this.height));
     }
 
     this.collision = function(bird){
-        if((bird.x+bird.width >= this.x && bird.y <= this.top) || (bird.x+bird.width >= this.x && bird.y+bird.height >= this.top+this.height)){
-            return true;
+        if((((bird.x + bird.width >= this.x) && (bird.x <= this.x + this.width)) && ((bird.y <= this.top) || (bird.y + bird.height >= this.top + this.height))) || (bird.y + bird.height >= playHeight)){
+            return true
         }
-
-        // if(((bird.x + bird.radius >= this.x) && (bird.x <= this.x + this.width)) && bird.y <= this.top){
-        //     return true
-        // }
     }
+}
+
+function endScreen(context, start = false){
+    context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+    context.fillStyle = "#fff";
+    context.font = "28px monospace";
+    let primaryText;
+
+    if(start)
+        primaryText = "Flappy Bird";
+    else
+        primaryText = "Game Over";
+
+    context.fillText(primaryText, context.canvas.width/3, context.canvas.height/2);
+    context.font = "20px monospace";
+    context.fillText("Press space or click to continue", context.canvas.width*(1/7), context.canvas.height*(3/4));
 }
 
 function intiGame() {
@@ -50,72 +101,41 @@ function intiGame() {
     let spacePressed = false;
     let gravity = -4;
     let angle = 0;
+    let gameOver = false;
+    let gameStart = true;
+    let score = 0;
+    let createPipeInterval;
     let pipes = [];
-
-    let bird = {
-        x: contextWidth/3,
-        y: contextHeight/3,
-        width: 35,
-        height:25,
-        render(degree){
-            context.save();
-            let radian = degree * Math.PI / 180;
-            context.translate(this.x + this.width / 2, this.y + this.height / 2);
-            context.rotate(radian);
-            // Body
-            context.fillStyle = "#e1b12c";
-            // context.beginPath();
-            // context.arc(this.radius/-2, this.radius/-2, this.radius, Math.PI*1.8, Math.PI*0.7, false);
-            // context.closePath();
-            // context.fill();
-            context.fillRect(this.width/-2, this.height/-2, 30, 25);
-            // Beak
-            context.fillStyle = "#c0392b";
-            context.fillRect((this.width/-2)+this.width-15, (this.height/-2)+14, 16, 8);
-            // Eye
-            context.fillStyle = "#ecf0f1";
-            context.beginPath();
-            context.arc((this.width/-2)+this.width-12, (this.height/-2)+7, 5, 0, Math.PI*2, false);
-            context.closePath();
-            context.fill();
-            // Wing
-            context.fillStyle = "#ecf0f1";
-            context.beginPath();
-            context.arc((this.width/-2)+3, (this. height/-2)+12, 10, Math.PI*1.7, Math.PI*0.8, false);
-            context.closePath();
-            context.fill();
-            context.restore();
-        }
-    }
-
-    
-
-    pipes.push(new Pipe(context));
+    let bird = new Bird(context)
+    play();
+    endScreen(context, true);
 
     function createPipe(){
-        pipes.push(new Pipe(context));
+        if(!gameOver){
+            pipes.push(new Pipe(context));
+            score++;
+        }
     }
-
-    setInterval(createPipe, 2000);
 
     function play() {
         context.clearRect(0, 0, contextWidth, contextHeight);
         setBackground(context);
         
         pipes.forEach((item, index, array) => {
-            item.x -= 2;
-            item.render();
-            if(item.x+item.width <= 0){
-                array.splice(index, 1);
-            }
+            if(!gameOver)
+                item.x -= 3;
+
+            if(item.x+item.width <= 0)
+                array.splice(index, 1)
 
             if(item.collision(bird)){
-                console.log("collision!");
+                gameOver = true;
+                clearInterval(createPipeInterval);
             }
+            item.render();
         });
 
-        bird.render(angle);
-        if(spacePressed){
+        if(spacePressed && !gameOver){
             bird.y -= 5;
             gravity = -4;
             angle = -10;
@@ -131,13 +151,21 @@ function intiGame() {
             }
         }
 
-        requestAnimationFrame(play);
+        bird.render(angle);
+        context.fillStyle = "#fff";
+        context.font = "28px monospace";
+        context.fillText(score, context.canvas.width/2, 50);
+        
+        if(gameOver)
+            endScreen(context);
+        
+        if(!gameStart)
+            requestAnimationFrame(play);
     }
-    requestAnimationFrame(play);
 
     document.addEventListener('keydown', function(event) {
         if(event.keyCode == 32){
-            spacePressed = true;
+            down();
         }
     });
 
@@ -147,6 +175,26 @@ function intiGame() {
         }
     })
 
+    context.canvas.addEventListener('mousedown', down);
+    context.canvas.addEventListener('mouseup', () => spacePressed = false);
+
+    function down(){    
+        spacePressed = true;
+        if(gameOver){
+            pipes = [];
+            bird.reset();
+            score = 0;
+            gameOver = false;
+            pipes.push(new Pipe(context));
+            createPipeInterval = setInterval(createPipe, 2000);
+        }
+        if(gameStart){
+            gameStart = false;
+            pipes.push(new Pipe(context));
+            requestAnimationFrame(play);
+            createPipeInterval = setInterval(createPipe, 2000);
+        }
+    }
 }
 
 window.addEventListener('load', intiGame);
