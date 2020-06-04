@@ -34,17 +34,19 @@ class Bird {
         // Beak
         this.context.fillStyle = "#c0392b";
         this.context.fillRect((this.width/-2)+this.width-15, (this.height/-2)+14, 16, 8);
+         // Wing
+         this.context.fillStyle = "#ecf0f1";
+         this.context.beginPath();
+         this.context.arc((this.width/-2)+3, (this. height/-2)+12, 10, Math.PI*1.7, Math.PI*0.8, false);
+         this.context.fill();
         // Eye
-        this.context.fillStyle = "#ecf0f1";
         this.context.beginPath();
-        this.context.arc((this.width/-2)+this.width-12, (this.height/-2)+7, 5, 0, Math.PI*2, false);
-        this.context.closePath();
+        this.context.arc((this.width/-2)+this.width-12, (this.height/-2)+7, 6, 0, Math.PI*2, false);
         this.context.fill();
-        // Wing
-        this.context.fillStyle = "#ecf0f1";
+        // Pupil
+        this.context.fillStyle = "#000";
         this.context.beginPath();
-        this.context.arc((this.width/-2)+3, (this. height/-2)+12, 10, Math.PI*1.7, Math.PI*0.8, false);
-        this.context.closePath();
+        this.context.arc((this.width/-2)+this.width-10, (this.height/-2)+7, 2, 0, Math.PI*2, false);
         this.context.fill();
         this.context.restore();
     }
@@ -56,8 +58,6 @@ class Bird {
 }
 
 function Pipe(context) {
-    this.color = "#009432";
-    this.border = "#44bd32";
     this.height = 100;
     this.width = 80;
     this.x = 480;
@@ -65,7 +65,7 @@ function Pipe(context) {
     let playHeight = 420;
 
     this.render = function(){
-        context.fillStyle = this.color;
+        context.fillStyle = "#009432";
         context.fillRect(this.x, 0, this.width, this.top);
         context.fillRect(this.x, this.top+this.height, this.width, playHeight - (this.top+this.height));
     }
@@ -77,18 +77,19 @@ function Pipe(context) {
     }
 }
 
-function endScreen(context, start = false){
+function endScreen(context, highscore = null){
     context.fillStyle = 'rgba(0, 0, 0, 0.5)';
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
     context.fillStyle = "#fff";
     context.font = "28px monospace";
     let primaryText;
 
-    if(start)
+    if(highscore === null){
         primaryText = "Flappy Bird";
-    else
+    }else{
         primaryText = "Game Over";
-
+        context.fillText("Highscore: "+highscore, context.canvas.width*(1/4), context.canvas.height*(1/4));
+    }
     context.fillText(primaryText, context.canvas.width/3, context.canvas.height/2);
     context.font = "20px monospace";
     context.fillText("Press space or click to continue", context.canvas.width*(1/7), context.canvas.height*(3/4));
@@ -104,11 +105,12 @@ function intiGame() {
     let gameOver = false;
     let gameStart = true;
     let score = 0;
+    let highscore = 0;
     let createPipeInterval;
     let pipes = [];
     let bird = new Bird(context)
     play();
-    endScreen(context, true);
+    endScreen(context);
 
     function createPipe(){
         if(!gameOver){
@@ -130,6 +132,7 @@ function intiGame() {
 
             if(item.collision(bird)){
                 gameOver = true;
+                highscore = (score > highscore) ? score : highscore;
                 clearInterval(createPipeInterval);
             }
             item.render();
@@ -157,7 +160,7 @@ function intiGame() {
         context.fillText(score, context.canvas.width/2, 50);
         
         if(gameOver)
-            endScreen(context);
+            endScreen(context, highscore);
         
         if(!gameStart)
             requestAnimationFrame(play);
