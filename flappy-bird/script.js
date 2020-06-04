@@ -33,7 +33,7 @@ function Pipe(context) {
     }
 
     this.collision = function(bird){
-        if((bird.x+bird.radius >= this.x && bird.y <= this.top) || (bird.x+bird.radius >= this.x && bird.y+bird.radius >= this.top+this.height)){
+        if((bird.x+bird.width >= this.x && bird.y <= this.top) || (bird.x+bird.width >= this.x && bird.y+bird.height >= this.top+this.height)){
             return true;
         }
 
@@ -55,25 +55,33 @@ function intiGame() {
     let bird = {
         x: contextWidth/3,
         y: contextHeight/3,
-        radius: 25,
+        width: 35,
+        height:25,
         render(degree){
             context.save();
             let radian = degree * Math.PI / 180;
-            context.translate(this.x + this.radius / 2, this.y + this.radius / 2);
+            context.translate(this.x + this.width / 2, this.y + this.height / 2);
             context.rotate(radian);
             // Body
-            context.fillStyle = "#f1c40f";
-            context.beginPath();
-            context.arc(this.radius/-2, this.radius/-2, this.radius, Math.PI*1.8, Math.PI*0.7, false);
-            context.closePath();
-            context.fill();
+            context.fillStyle = "#e1b12c";
+            // context.beginPath();
+            // context.arc(this.radius/-2, this.radius/-2, this.radius, Math.PI*1.8, Math.PI*0.7, false);
+            // context.closePath();
+            // context.fill();
+            context.fillRect(this.width/-2, this.height/-2, 30, 25);
             // Beak
             context.fillStyle = "#c0392b";
-            context.fillRect((this.radius/-2)+this.radius-1, (this.radius/-2)+2, 10, 5);
+            context.fillRect((this.width/-2)+this.width-15, (this.height/-2)+14, 16, 8);
             // Eye
-            context.fillStyle = "#fff";
+            context.fillStyle = "#ecf0f1";
             context.beginPath();
-            context.arc((this.radius/-2)+this.radius-8, this.radius / -2, 3, 0, Math.PI*2, false);
+            context.arc((this.width/-2)+this.width-12, (this.height/-2)+7, 5, 0, Math.PI*2, false);
+            context.closePath();
+            context.fill();
+            // Wing
+            context.fillStyle = "#ecf0f1";
+            context.beginPath();
+            context.arc((this.width/-2)+3, (this. height/-2)+12, 10, Math.PI*1.7, Math.PI*0.8, false);
             context.closePath();
             context.fill();
             context.restore();
@@ -110,13 +118,13 @@ function intiGame() {
         if(spacePressed){
             bird.y -= 5;
             gravity = -4;
-            angle = 0;
+            angle = -10;
         }else{
-            if(bird.y+bird.radius <= 420){
+            if(bird.y+bird.height <= 420){
                 if(gravity <= 10){
                     gravity += 0.4;
                 }
-                if(gravity >= 6){
+                if(gravity >= 6 && angle<=90){
                     angle += 3;
                 }
                 bird.y += gravity;
