@@ -20,6 +20,7 @@ class Bird {
         this.y = this.context.canvas.height/3;
         this.width = 35;
         this.height = 25;
+        this.score = 0;
     }
 
     render(degree){
@@ -50,11 +51,6 @@ class Bird {
         this.context.fill();
         this.context.restore();
     }
-
-    reset(){
-        this.x = this.context.canvas.width/3;
-        this.y = this.context.canvas.height/3;
-    }
 }
 
 function Pipe(context) {
@@ -71,9 +67,8 @@ function Pipe(context) {
     }
 
     this.collision = function(bird){
-        if((((bird.x + bird.width >= this.x) && (bird.x <= this.x + this.width)) && ((bird.y <= this.top) || (bird.y + bird.height >= this.top + this.height))) || (bird.y + bird.height >= playHeight)){
+        if((((bird.x + bird.width >= this.x) && (bird.x <= this.x + this.width)) && ((bird.y <= this.top) || (bird.y + bird.height >= this.top + this.height))) || (bird.y + bird.height >= playHeight))
             return true
-        }
     }
 }
 
@@ -104,18 +99,17 @@ function intiGame() {
     let angle = 0;
     let gameOver = false;
     let gameStart = true;
-    let score = 0;
     let highscore = 0;
     let createPipeInterval;
     let pipes = [];
-    let bird = new Bird(context)
+    let bird = new Bird(context);
     play();
     endScreen(context);
 
     function createPipe(){
         if(!gameOver){
             pipes.push(new Pipe(context));
-            score++;
+            bird.score++;
         }
     }
 
@@ -132,7 +126,7 @@ function intiGame() {
 
             if(item.collision(bird)){
                 gameOver = true;
-                highscore = (score > highscore) ? score : highscore;
+                highscore = (bird.score > highscore) ? bird.score : highscore;
                 clearInterval(createPipeInterval);
             }
             item.render();
@@ -144,12 +138,12 @@ function intiGame() {
             angle = -10;
         }else{
             if(bird.y+bird.height <= 420){
-                if(gravity <= 10){
+                if(gravity <= 10)
                     gravity += 0.4;
-                }
-                if(gravity >= 6 && angle<=90){
+
+                if(gravity >= 6 && angle<=90)
                     angle += 3;
-                }
+
                 bird.y += gravity;
             }
         }
@@ -157,7 +151,7 @@ function intiGame() {
         bird.render(angle);
         context.fillStyle = "#fff";
         context.font = "28px monospace";
-        context.fillText(score, context.canvas.width/2, 50);
+        context.fillText(bird.score, context.canvas.width/2, 50);
         
         if(gameOver)
             endScreen(context, highscore);
@@ -167,28 +161,27 @@ function intiGame() {
     }
 
     document.addEventListener('keydown', function(event) {
-        if(event.keyCode == 32){
+        if(event.keyCode == 32)
             down();
-        }
     });
-
     document.addEventListener('keyup', function(event) {
-        if(event.keyCode == 32){
+        if(event.keyCode == 32)
             spacePressed = false;
-        }
     })
 
     context.canvas.addEventListener('mousedown', down);
     context.canvas.addEventListener('mouseup', () => spacePressed = false);
 
+    context.canvas.addEventListener('touchstart', down);
+    context.canvas.addEventListener('touchend', () => spacePressed = false);
+
     function down(){    
         spacePressed = true;
         if(gameOver){
-            pipes = [];
-            bird.reset();
-            score = 0;
             gameOver = false;
+            pipes = [];
             pipes.push(new Pipe(context));
+            bird = new Bird(context);
             createPipeInterval = setInterval(createPipe, 2000);
         }
         if(gameStart){
